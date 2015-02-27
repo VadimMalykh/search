@@ -64,7 +64,7 @@ class SearchProblem:
 
 
 class SearchMethod:
-    def __init__(self, graphSearch):
+    def __init__(self, graphSearch = True):
         self.fringe = PriorityQueue()
         self.closed = set()
         self.currentPath = []
@@ -75,7 +75,10 @@ class SearchMethod:
             path = self.currentPath + [action]
         else:
             path = self.currentPath 
-        self.pushToFringe(state, path, cost)
+        self.fringe.push((path, state), self.getStatePriority(state, action, cost, path))
+
+    def getStatePriority(self, state, action, cost, path):
+        return -len(path)
 
     def pop(self):
         # print "Cueent path:", self.currentPath
@@ -101,12 +104,7 @@ class SearchMethod:
                 self.push(state, action, cost)
 
 
-class DFSMethod(SearchMethod):
-    def __init__(self, graphSearch = True):
-        SearchMethod.__init__(self, graphSearch)
-
-    def pushToFringe(self, state, path, cost):
-        self.fringe.push((path, state), -len(path))
+DFSMethod = SearchMethod
 
 def tinyMazeSearch(problem):
     """
