@@ -95,6 +95,7 @@ class SearchMethod:
         return None
 
     def solveProblem(self, problem):
+        self.problem = problem
         self.push(problem.getStartState())
         while True:
             state = self.pop()
@@ -116,6 +117,14 @@ class BFSMethod(SearchMethod):
 class UCSMethod(SearchMethod):
     def getStatePriority(self, state, action, cost, path):
         return cost
+
+class ASSMethod(SearchMethod):
+    def __init__(self, heuristic, graphSearch = True):
+        SearchMethod.__init__(self, graphSearch)
+        self.heuristic = heuristic
+
+    def getStatePriority(self, state, action, cost, path):
+        return cost + self.heuristic(state, self.problem)
 
 def tinyMazeSearch(problem):
     """
@@ -164,7 +173,7 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return ASSMethod(heuristic).solveProblem(problem)
 
 
 # Abbreviations
