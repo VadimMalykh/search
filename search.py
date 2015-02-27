@@ -88,8 +88,17 @@ class SearchMethod:
             return state
         return None
 
-    def getSolution(self):
-        return self.currentPath
+    def solveProblem(self, problem):
+        self.push(problem.getStartState())
+        while True:
+            state = self.pop()
+            if state is None:
+                return None
+            if problem.isGoalState(state):
+                return self.currentPath
+            for node in problem.getSuccessors(state):
+                state, action, cost = node
+                self.push(state, action, cost)
 
 
 class DFSMethod(SearchMethod):
@@ -109,18 +118,6 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
-def solveProblemWithMethod(problem, method):
-    method.push(problem.getStartState())
-    while True:
-        state = method.pop()
-        if state is None:
-            return None
-        if problem.isGoalState(state):
-            return method.getSolution()
-        for node in problem.getSuccessors(state):
-            state, action, cost = node
-            method.push(state, action, cost)
-
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first.
@@ -136,7 +133,7 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    return solveProblemWithMethod(problem, DFSMethod())
+    return DFSMethod().solveProblem(problem)
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
