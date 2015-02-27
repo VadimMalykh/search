@@ -106,6 +106,10 @@ class SearchMethod:
 
 DFSMethod = SearchMethod
 
+class BFSMethod(SearchMethod):
+    def getStatePriority(self, state, action, cost, path):
+        return len(path)
+
 def tinyMazeSearch(problem):
     """
     Returns a sequence of moves that solves tinyMaze.  For any other maze, the
@@ -136,7 +140,7 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return BFSMethod().solveProblem(problem)
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
