@@ -18,6 +18,7 @@ Pacman agents (in searchAgents.py).
 """
 
 import util
+import sys
 
 class SearchProblem:
     """
@@ -62,6 +63,42 @@ class SearchProblem:
         util.raiseNotDefined()
 
 
+class SearchMethod:
+    def __init__(self, graphSearch):
+        self.fringe = PriorityQueue()
+        self.closed = set()
+        self.currentPath = []
+        self.graphSearch = graphSearch
+
+    def push(self, state, action = None, cost = 0):
+        if action is not None:
+            path = self.currentPath + [action]
+        else:
+            path = self.currentPath 
+        self.pushToFringe(state, path, cost)
+
+    def pop(self):
+        # print "Cueent path:", self.currentPath
+        while not self.fringe.isEmpty():
+            self.currentPath,state = self.fringe.pop()
+            if self.graphSearch:
+                if state in self.closed:
+                    continue
+                self.closed.add(state)
+            return state
+        return None
+
+    def getSolution(self):
+        return self.currentPath
+
+
+class DFSMethod(SearchMethod):
+    def __init__(self, graphSearch = True):
+        SearchMethod.__init__(self, graphSearch)
+
+    def pushToFringe(self, state, path, cost):
+        self.fringe.push((path, state), -len(path))
+
 def tinyMazeSearch(problem):
     """
     Returns a sequence of moves that solves tinyMaze.  For any other maze, the
@@ -71,6 +108,18 @@ def tinyMazeSearch(problem):
     s = Directions.SOUTH
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
+
+def solveProblemWithMethod(problem, method):
+    method.push(problem.getStartState())
+    while True:
+        state = method.pop()
+        if state is None:
+            return None
+        if problem.isGoalState(state):
+            return method.getSolution()
+        for node in problem.getSuccessors(state):
+            state, action, cost = node
+            method.push(state, action, cost)
 
 def depthFirstSearch(problem):
     """
@@ -87,7 +136,7 @@ def depthFirstSearch(problem):
     print "Start's successors:", problem.getSuccessors(problem.getStartState())
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return solveProblemWithMethod(problem, DFSMethod())
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
@@ -117,3 +166,6 @@ bfs = breadthFirstSearch
 dfs = depthFirstSearch
 astar = aStarSearch
 ucs = uniformCostSearch
+
+Queue = util.Queue
+PriorityQueue = util.PriorityQueue
