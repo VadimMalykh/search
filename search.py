@@ -68,6 +68,7 @@ class SearchMethod:
         self.fringe = PriorityQueue()
         self.closed = set()
         self.currentPath = []
+        self.currentCost = 0
         self.graphSearch = graphSearch
 
     def push(self, state, action = None, cost = 0):
@@ -75,7 +76,9 @@ class SearchMethod:
             path = self.currentPath + [action]
         else:
             path = self.currentPath 
-        self.fringe.push((path, state), self.getStatePriority(state, action, cost, path))
+        cost += self.currentCost
+        self.fringe.push((state, cost, path), 
+                self.getStatePriority(state, action, cost, path))
 
     def getStatePriority(self, state, action, cost, path):
         return -len(path)
@@ -83,7 +86,7 @@ class SearchMethod:
     def pop(self):
         # print "Cueent path:", self.currentPath
         while not self.fringe.isEmpty():
-            self.currentPath,state = self.fringe.pop()
+            state, self.currentCost, self.currentPath = self.fringe.pop()
             if self.graphSearch:
                 if state in self.closed:
                     continue
@@ -109,6 +112,10 @@ DFSMethod = SearchMethod
 class BFSMethod(SearchMethod):
     def getStatePriority(self, state, action, cost, path):
         return len(path)
+
+class UCSMethod(SearchMethod):
+    def getStatePriority(self, state, action, cost, path):
+        return cost
 
 def tinyMazeSearch(problem):
     """
@@ -145,7 +152,7 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    return UCSMethod().solveProblem(problem)
 
 def nullHeuristic(state, problem=None):
     """
