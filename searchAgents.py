@@ -271,6 +271,9 @@ class CornersProblem(search.SearchProblem):
     This search problem finds paths through all four corners of a layout.
 
     You must select a suitable state space and successor function
+
+    Let state be (x, y, corners) tuple, where corners is tuple with visited to this state corners.
+    It lets us to figure out whether we have all corners in the path
     """
 
     def __init__(self, startingGameState):
@@ -295,14 +298,18 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        x, y = self.startingPosition
+        return (x, y, ())
 
     def isGoalState(self, state):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        x,y,corners = state
+        if (x,y) in self.corners:
+            corners = ((x,y),) + corners
+        return set(corners) == set(self.corners)
 
     def getSuccessors(self, state):
         """
@@ -319,14 +326,15 @@ class CornersProblem(search.SearchProblem):
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
-
-            "*** YOUR CODE HERE ***"
-
-        self._expanded += 1 # DO NOT CHANGE
+            x,y,corners = state
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            hitsWall = self.walls[nextx][nexty]
+            if not hitsWall:
+                if (x,y) in self.corners:
+                    corners = ((x,y),) + corners
+                successors.append(((nextx, nexty, corners), action, 1))
+        self._expanded += 1 # DO NOT CHANGE)
         return successors
 
     def getCostOfActions(self, actions):

@@ -84,7 +84,6 @@ class SearchMethod:
         return -len(path)
 
     def pop(self):
-        # print "Cueent path:", self.currentPath
         while not self.fringe.isEmpty():
             state, self.currentCost, self.currentPath = self.fringe.pop()
             if self.graphSearch:
