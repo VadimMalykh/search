@@ -387,8 +387,7 @@ def cornersHeuristic(state, problem):
     if (problem.isGoalState(state)):
         return 0
     x,y,stateCorners = state
-    heuristic = getPathLength((x,y), set(corners) - set(stateCorners))
-    return heuristic # Default to trivial solution
+    return getPathLength((x,y), set(corners) - set(stateCorners))
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
@@ -480,9 +479,31 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
     """
+    if problem.isGoalState(state):
+        return 0
+    if len(problem.heuristicInfo) == 0:
+        buildHeuristicsInfo(problem)
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    if position in problem.heuristicInfo["distances"]:
+        return problem.heuristicInfo["distances"][position]
+    return problem.heuristicInfo["maxDistance"]
+
+def buildHeuristicsInfo(problem):
+    startState = problem.getStartState()
+    position,foodGrid = startState
+    foods = foodGrid.asList()
+    distances = {}
+    maxDistance = 0
+    for food in foods:
+        distance = mazeDistance(position, food, problem.startingGameState)
+        distances[food] = distance
+        if distance > maxDistance:
+            maxDistance = distance
+    for food, distance in distances.items():
+        distances[food] = maxDistance - distance
+    problem.heuristicInfo["distances"] = distances
+    problem.heuristicInfo["maxDistance"] = maxDistance
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
