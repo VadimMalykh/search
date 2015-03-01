@@ -479,19 +479,53 @@ def foodHeuristic(state, problem):
     Subsequent calls to this heuristic can access
     problem.heuristicInfo['wallCount']
     """
-    if problem.isGoalState(state):
-        return 0
-    if len(problem.heuristicInfo) == 0: 
-        buildHeuristicsInfo(problem)
     # return len(state[1].asList()) # better!
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
+    if problem.isGoalState(state):
+        return 0
+    return foodHeuristic2(state, problem)
+
+def foodHeuristic1(state, problem): # 75.5 sec, 5029 nodes
+    position, foodGrid = state
+    if len(problem.heuristicInfo) == 0: 
+        buildHeuristicsInfo(problem)
     # if it's dot - return actual mazeDistance
     if position in problem.heuristicInfo["distances"]:
         return problem.heuristicInfo["distances"][position]
     # if not - return distance to nearest dot plus cost of that dot
     return costToNearestDot(position, foodGrid.asList(), problem.heuristicInfo["distances"],
-                                                                    problem.startingGameState)
+                                                            problem.startingGameState)
+
+def foodHeuristic2(state, problem): # 2.7 sec, 7393 nodes
+    position, foodGrid = state
+    if len(problem.heuristicInfo) == 0: 
+        buildHeuristicsInfo(problem)
+    # if it's dot - return actual mazeDistance
+    if position in problem.heuristicInfo["distances"]:
+        return problem.heuristicInfo["distances"][position]
+    # if not - return distance to nearest dot plus cost of that dot
+    return costToNearestDot2(position, foodGrid.asList(), problem.heuristicInfo["distances"])
+
+def foodHeuristic3(state, problem): # 6 sec, 10908 nodes
+    # just manhattan distance to nearest dot
+    position, foodGrid = state
+    minDistance = 9999
+    for food in foodGrid.asList():
+        distance = util.manhattanDistance(position, food)
+        if distance < minDistance:
+            minDistance = distance
+    return minDistance + len(foodGrid.asList()) - 1
+
+def foodHeuristic4(state, problem): # no no, it just bad!!
+    # just manhattan distance to nearest dot
+    position, foodGrid = state
+    minDistance = 9999
+    for food in foodGrid.asList():
+        distance = mazeDistance(position, food, problem.startingGameState)
+        if distance < minDistance:
+            minDistance = distance
+    return minDistance + len(foodGrid.asList()) - 1
 
 def buildHeuristicsInfo(problem):
     startState = problem.getStartState()
@@ -514,6 +548,15 @@ def costToNearestDot(position, foods, foodCosts, gameState):
     minDistance = 9999
     for food in foods:
         distance = mazeDistance(position, food, gameState)
+        if distance < minDistance:
+            minDistance = distance
+            minDot = food
+    return minDistance + foodCosts[minDot]
+
+def costToNearestDot2(position, foods, foodCosts):
+    minDistance = 9999
+    for food in foods:
+        distance = util.manhattanDistance(position, food)
         if distance < minDistance:
             minDistance = distance
             minDot = food
